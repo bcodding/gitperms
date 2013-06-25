@@ -23,6 +23,7 @@ if [ -e "${hooks}/post-commit" -o -e "${hooks}/post-checkout" -o -e "${hooks}/po
 
   echo "One of ${hooks}/post-{commit,checkout,merge} hooks already exist"
   echo "You will have to setup gitperms manually"
+  exit 1
 
 fi
 
