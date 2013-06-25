@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 dest_dir=$1
 src_dir=$(dirname $0)
 
-if [[ ! -d $dest_dir ]]; then
+if [ ! -d $dest_dir ]; then
 
   echo "$dest_dir doesn't exist"
   exit 1
@@ -12,14 +12,14 @@ fi
 
 hooks="${dest_dir}/.git/hooks"
 
-if [[ ! -d $hooks ]]; then
+if [ ! -d $hooks ]; then
 
   echo "$hooks doesn't exist"
   exit 1
 
 fi
 
-if [[ -e "${hooks}/post-commit" ]]; then
+if [ -e "${hooks}/post-commit" ]; then
 
   echo "post-commit already exists in ${hooks}, skipping"
 
@@ -29,7 +29,7 @@ else
 
 fi
 
-if [[ -e "${hooks}/post-checkout" ]]; then
+if [ -e "${hooks}/post-checkout" ]; then
 
   echo "post-checkout already exists in ${hooks}, skipping"
 
@@ -39,7 +39,7 @@ else
 
 fi
 
-if [[ -e "${hooks}/post-merge" ]]; then
+if [ -e "${hooks}/post-merge" ]; then
 
   echo "post-merge already exists in ${hooks}, skipping"
 
