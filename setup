@@ -45,7 +45,7 @@ if [ -e "${hooks}/post-merge" ]; then
 
 else
 
-  ln -s "${hooks}/post-checkout" "${hooks}/post-merge"
+  ln -s post-checkout "${hooks}/post-merge"
 
 fi
 
