@@ -35,6 +35,8 @@ my $topdir = get_toplevel();
 chdir $topdir
   or die "Unable to change to git top level directory: $!\n";
 
+my $se_enforcing = qx/cat \/selinux\/enforce/;
+
 GetOptions(
   'create-on-missing' => \my $create_on_missing,
   force               => \my $force,
@@ -172,7 +174,7 @@ sub get_metadata_from_system {
 
 sub set_metadata_in_system { ## no critic qw( Subroutines::ProhibitExcessComplexity )
 
-  my ( %chown_file, %chmod_file, %touch_file, %extnd_attr );
+  my ( %chown_file, %chmod_file, %touch_file, %extnd_attr, @restor_ctx );
 
   for my $sha1 ( keys %metadata ) {
 
@@ -258,6 +260,8 @@ sub set_metadata_in_system { ## no critic qw( Subroutines::ProhibitExcessComplex
 
       $extnd_attr{ $name } = $attr->{ extnd_attr };
 
+      push @restor_ctx, $name;
+
     } ## end for my $inode ( keys...)
   } ## end for my $sha1 ( keys...)
 
@@ -265,6 +269,7 @@ sub set_metadata_in_system { ## no critic qw( Subroutines::ProhibitExcessComplex
   chmod_file( \%chmod_file );
   touch_file( \%touch_file );
   extnd_attr( \%extnd_attr );
+  restor_ctx( \@restor_ctx );
 
   return;
 
@@ -419,4 +424,21 @@ sub extnd_attr {
 
   return;
 
+}
+
+sub restor_ctx {
+  my ( $restor_ctx ) = @_;
+
+  return if not $se_enforcing;
+
+  my $top = $topdir =~ m/\/$/ ? $topdir : $topdir."/";
+
+  open RESTORCON, "|restorecon -f- -v" || warn "unable to execute restorecon";
+  foreach (@$restor_ctx) {
+    ! defined $quiet && warn "restorecon ". $top . $_ . "\n";
+    print RESTORCON "". $top . $_ . "\n";
+  }
+  close RESTORCON;
+
+  return;
 }
