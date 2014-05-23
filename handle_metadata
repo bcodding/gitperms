@@ -14,6 +14,8 @@ use File::Spec ();
 use File::stat;  # overrides perl's stat and lstat
 use File::Temp 'tempfile';
 use File::Touch;
+use File::Basename;
+use Cwd 'abs_path';
 use Getopt::Long;
 use IPC::Run3::Simple;
 use Linux::Ext2::Attributes 'set_attrs';
@@ -23,6 +25,10 @@ use Unix::Mknod;
 use YAML::Syck;
 
 our $NOTE_NS = 'gitperms';  # What namespace are we using for notes?
+
+$ENV{GIT_DIR} = abs_path(dirname($0).'/../');
+$ENV{GIT_WORK_TREE} = qx/git config --get core.worktree/;
+chomp $ENV{GIT_WORK_TREE};
 
 my $topdir = get_toplevel();
 
