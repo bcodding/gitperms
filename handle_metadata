@@ -9,7 +9,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Fcntl qw( :mode S_ISDIR );
+use Fcntl qw( :mode S_ISDIR  S_ISLNK);
 use File::Spec ();
 use File::stat;  # overrides perl's stat and lstat
 use File::Temp 'tempfile';
@@ -133,6 +133,7 @@ sub get_metadata_from_system {
         = ( $st->rdev || $ftype == 1 || $ftype == 12 ) ? 'CF'
         : ( ! S_ISDIR( $st->mode ) && $st->nlink > 1 && $inode != {} ) ? 'HL'
         : S_ISDIR( $st->mode ) ? 'DIR'
+        : S_ISLNK( $st->mode ) ? 'SL'
         :                        'RF';
 
       $inode->{ $_ } = $st->$_ for qw( dev ino mode nlink uid gid rdev size atime mtime ctime blksize blocks );
@@ -174,6 +175,9 @@ sub set_metadata_in_system { ## no critic qw( Subroutines::ProhibitExcessComplex
     for my $inode ( keys %$md ) { ## no critic qw( References::ProhibitDoubleSigils )
 
       my $attr = $md->{ $inode };
+
+      # Don't do anything for symbolic links
+      next if $attr->{ type } eq 'SL';
 
       ! defined $quiet && warn "$sha1, $inode has multiple names, only the first one will be handled"
         if ( @{ $attr->{ name } } > 1 ) && ( $attr->{ type } ne 'HL' );
