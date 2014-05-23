@@ -314,8 +314,10 @@ EOT
 
   } else {
 
-    warn $err if $err;
-    return;
+    if ($err) {
+      warn $err;
+      return;
+    }
 
   }
 
